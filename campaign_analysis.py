@@ -2,57 +2,84 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.decomposition import PCA
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
 
-# 1. Load the data
-df = pd.read_csv('nykaa_campaign_data.csv')
+# 1. Load the cleaned data
+df = pd.read_csv('cleaned_campaign_data.csv')
 
-# 2. Data Cleaning & Preprocessing
-print("--- Starting Data Cleaning ---")
+# 2. Prepare features and target
+# Target is ROI
+X = df.drop(['ROI'], axis=1)
+y = df['ROI']
 
-# Convert Date to datetime and extract Month/Day of Week
-df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
-df['Month'] = df['Date'].dt.month
-df['DayOfWeek'] = df['Date'].dt.dayofweek
+# 3. Train-Test Split (70/30 as per example)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=88)
 
-# Drop unique identifier and original Date
-df_cleaned = df.drop(['Campaign_ID', 'Date'], axis=1)
-
-# Handle 'Channel_Used' (It has multiple values, let's take the first one for simplicity or count them)
-# For this study, we'll count how many channels were used as a feature
-df_cleaned['Num_Channels'] = df['Channel_Used'].apply(lambda x: len(x.split(',')))
-df_cleaned = df_cleaned.drop(['Channel_Used'], axis=1)
-
-# Categorical Encoding
-# Using get_dummies for multi-category columns (One-Hot Encoding)
-categorical_cols = ['Campaign_Type', 'Target_Audience', 'Language', 'Customer_Segment']
-df_final = pd.get_dummies(df_cleaned, columns=categorical_cols, drop_first=True)
-
-print(f"Original shape: {df.shape}")
-print(f"Final processed shape: {df_final.shape}")
-
-# 3. Exploratory Data Analysis (EDA) - Heatmap
-plt.figure(figsize=(12, 10))
-sns.heatmap(df_cleaned.select_dtypes(include=[np.number]).corr(), annot=True, cmap='coolwarm', fmt='.2f')
-plt.title("Correlation Heatmap of Numerical Features")
-plt.savefig('correlation_heatmap.png')
-print("\nCorrelation heatmap saved as 'correlation_heatmap.png'")
-
-# 4. Feature Scaling & PCA (following the example methodology)
-# Select numerical columns for PCA (exclude target ROI)
-num_features = df_cleaned.select_dtypes(include=[np.number]).drop(['ROI'], axis=1)
+# 4. Feature Scaling (Crucial for Neural Networks)
 scaler = StandardScaler()
-scaled_features = scaler.fit_transform(num_features)
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-pca = PCA(n_components=0.95) # Retain 95% of variance
-pca_result = pca.fit_transform(scaled_features)
-print(f"\nPCA reduced features from {num_features.shape[1]} to {pca_result.shape[1]} components.")
+def evaluate_model(name, y_true, y_pred):
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    print(f"\n--- {name} Performance ---")
+    print(f"MAE: {mae:.4f}")
+    print(f"MSE: {mse:.4f}")
+    print(f"R2 Score: {r2:.4f}")
+    return mae, mse, r2
 
-# 5. Save the cleaned dataset for the next step
-df_final.to_csv('cleaned_campaign_data.csv', index=False)
-print("\nCleaned data saved to 'cleaned_campaign_data.csv'")
+results = []
+
+# --- Model 1: Linear Regression ---
+lr = LinearRegression()
+lr.fit(X_train_scaled, y_train)
+y_pred_lr = lr.predict(X_test_scaled)
+results.append(('Linear Regression', *evaluate_model("Linear Regression", y_test, y_pred_lr)))
+
+# --- Model 2: Random Forest ---
+rf = RandomForestRegressor(n_estimators=100, random_state=88)
+rf.fit(X_train, y_train) # Random forest handles unscaled data well
+y_pred_rf = rf.predict(X_test)
+results.append(('Random Forest', *evaluate_model("Random Forest", y_test, y_pred_rf)))
+
+# --- Model 3: Neural Network (ANN) ---
+model = Sequential([
+    Dense(128, activation='relu', input_shape=(X_train_scaled.shape[1],)),
+    Dropout(0.2),
+    Dense(64, activation='relu'),
+    Dropout(0.2),
+    Dense(32, activation='relu'),
+    Dense(1) # Output layer for regression
+])
+
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+
+print("\n--- Training Neural Network ---")
+history = model.fit(X_train_scaled, y_train, 
+                    validation_split=0.2, 
+                    epochs=50, # Reduced from 100 for speed, adjust as needed
+                    batch_size=16, 
+                    verbose=0)
+
+y_pred_nn = model.predict(X_test_scaled).flatten()
+results.append(('Neural Network', *evaluate_model("Neural Network", y_test, y_pred_nn)))
+
+# 5. Model Comparison Visualization
+results_df = pd.DataFrame(results, columns=['Model', 'MAE', 'MSE', 'R2'])
+print("\n--- Model Comparison Table ---")
+print(results_df)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Model', y='R2', data=results_df)
+plt.title('Model R2 Score Comparison')
+plt.savefig('model_comparison.png')
+print("\nComparison plot saved as 'model_comparison.png'")
