@@ -34,8 +34,8 @@
     tabsize=2
 }
 
-\title{Case Study: Digital Marketing ROI Prediction & Optimization}
-\author{Theekshana Gimhan \\ MAD LABS}
+\title{Data Science Case Study: Digital Marketing ROI Prediction \& Optimization}
+\author{Theekshana Gimhan}
 \date{March 2026}
 
 \begin{document}
@@ -43,38 +43,38 @@
 \maketitle
 
 \section{Introduction}
-In the competitive landscape of digital advertising, optimizing marketing spend is crucial for maximizing business growth. As MAD LABS transitions into a SaaS-focused company with products like Simpala HR and Fintrack, understanding the nuances of campaign performance becomes a strategic necessity. This study utilizes marketing data from Nykaa to build predictive frameworks for Return on Investment (ROI).
+In the modern digital landscape, the ability to accurately predict and optimize marketing performance is essential for effective resource allocation. This study explores the application of data science and artificial intelligence techniques to analyze digital marketing campaign data. By leveraging historical performance metrics, the project aims to develop a predictive framework for Return on Investment (ROI).
 
 \subsection{Problem Formulation}
-While traditional analysis often looks at total clicks or revenue in isolation, this project takes a multidimensional approach by:
+Traditional marketing analysis often examines individual metrics like clicks or impressions in isolation. This project takes a comprehensive, data-driven approach by:
 \begin{enumerate}
-    \item Comparing Campaign Performance across diverse target audiences.
-    \item Predicting ROI using campaign duration, engagement scores, and channel metrics.
+    \item Analyzing campaign performance across diverse demographic and geographic segments.
+    \item Predicting campaign ROI using a combination of behavioral metrics, duration, and engagement scores.
 \end{enumerate}
 
 \textbf{Research Question:} \\
-How do different campaign factors impact digital marketing ROI, and can we predict success using machine learning?
+How do various campaign parameters influence the financial success of digital marketing efforts, and can machine learning models provide high-accuracy predictions for ROI?
 
 \subsection{Data Acquisition}
 \begin{itemize}
-    \item \textbf{Origin:} Nykaa Marketing Campaign Dataset.
-    \item \textbf{Content:} Data for 55,555 campaigns including metrics for impressions, clicks, leads, and conversions.
-    \item \textbf{Variables:} 18 columns covering campaign types, audience segments, and financial outcomes.
+    \item \textbf{Source:} Nykaa Marketing Campaign Dataset (Publicly available).
+    \item \textbf{Content:} A comprehensive dataset featuring 55,555 individual campaign records.
+    \item \textbf{Key Variables:} 18 columns including Impressions, Clicks, Leads, Conversions, Acquisition Cost, and Engagement Score.
 \end{itemize}
 
 \section{Data Analysis}
-\subsection{Clean and preprocess data}
-The dataset was processed to ensure uniformity and model readiness:
+\subsection{Data Preprocessing and Cleaning}
+To ensure the data was suitable for machine learning, the following steps were implemented:
 \begin{enumerate}
-    \item \textbf{Date Handling:} Seasonal features (Month, Day) were extracted to capture time-based trends.
-    \item \textbf{Feature Engineering:} The number of channels used per campaign was calculated.
-    \item \textbf{Categorical Encoding:} Campaign types and target audiences were converted to binary vectors.
-    \item \textbf{Scaling:} Numerical features were normalized using StandardScalar.
+    \item \textbf{Date Transformation:} The temporal data was processed to extract 'Month' and 'Day of Week' to account for seasonal variations in consumer behavior.
+    \item \textbf{Feature Engineering:} The number of unique communication channels used in each campaign was quantified as a new numerical feature.
+    \item \textbf{Categorical Encoding:} Qualitative variables such as Campaign Type and Target Audience were transformed using One-Hot Encoding.
+    \item \textbf{Feature Scaling:} Standard scaling was applied to ensure that features with different magnitudes (e.g., Impressions vs. Engagement Score) were treated uniformly by the models.
 \end{enumerate}
 
-\subsection{Exploratory Data Analysis}
+\subsection{Exploratory Data Analysis (EDA)}
 \textbf{1. ROI Distribution Analysis:} \\
-The ROI distribution is primarily centered around low positive values, with a long tail indicating highly successful outlier campaigns.
+The distribution of ROI is shown in Figure 1. While the majority of campaigns yield moderate returns, there is a distinct presence of high-performing outliers.
 
 \begin{figure}[H]
     \centering
@@ -82,17 +82,17 @@ The ROI distribution is primarily centered around low positive values, with a lo
     \caption{Distribution and Boxplot of ROI}
 \end{figure}
 
-\textbf{2. Performance by Campaign Type:} \\
-Social Media and Influencer campaigns showed higher average ROIs compared to traditional Paid Ads.
+\textbf{2. Performance by Campaign Category:} \\
+Analysis of average ROI across different types shows that Social Media and Influencer-led campaigns tend to outperform SEO and Paid Ads in this dataset.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{avg_roi_campaign.png}
-    \caption{Average ROI per Campaign Category}
+    \caption{Average ROI per Campaign Type}
 \end{figure}
 
-\textbf{3. Principal Component Analysis (PCA):} \\
-PCA was applied to numerical features. The first few components explain the majority of the variance, allowing for significant dimensionality reduction.
+\textbf{3. Dimensionality Reduction (PCA):} \\
+Principal Component Analysis was utilized to identify the most significant underlying patterns. As shown in the Scree Plot (Figure 3), most of the variance is captured within the first few components.
 
 \begin{figure}[H]
     \centering
@@ -101,7 +101,7 @@ PCA was applied to numerical features. The first few components explain the majo
 \end{figure}
 
 \textbf{4. Correlation Analysis:} \\
-As shown in Figure 4, clicks and impressions show high collinearity, while engagement score is a strong lead indicator for ROI.
+The correlation heatmap reveals strong positive relationships between Impressions, Clicks, and Leads, which are foundational metrics for driving revenue.
 
 \begin{figure}[H]
     \centering
@@ -109,19 +109,22 @@ As shown in Figure 4, clicks and impressions show high collinearity, while engag
     \caption{Feature Correlation Heatmap}
 \end{figure}
 
-\section{ML/AI methods}
-We used numerical features like Impressions, Clicks, Leads, and Engagement Score as predictors for the target variable: \textbf{ROI}.
+\section{ML/AI Methods}
+The project implemented three distinct modeling approaches to compare performance and robustness.
+
+\subsection{Linear Regression}
+A baseline model was established using Linear Regression to evaluate the degree of linear relationship between features and ROI.
 
 \subsection{Random Forest Regressor}
-The Random Forest model utilized 100 decision trees to capture non-linear relationships.
+This ensemble method was chosen for its ability to handle non-linear relationships and interactions between multiple variables.
 \begin{lstlisting}[language=Python]
 rf_model = RandomForestRegressor(n_estimators=100, random_state=88)
 rf_model.fit(X_train, y_train)
 y_pred = rf_model.predict(X_test)
 \end{lstlisting}
 
-\subsection{Neural Network Model}
-A Sequential API model was built with dense layers and dropout for regularization.
+\subsection{Artificial Neural Network (ANN)}
+A deep learning model was constructed using a Sequential architecture with multiple dense layers and dropout for regularization.
 \begin{lstlisting}[language=Python]
 model = Sequential([
     Dense(128, activation='relu', input_shape=(X_train.shape[1],)),
@@ -131,16 +134,12 @@ model = Sequential([
 ])
 \end{lstlisting}
 
-\section{Reflection}
-\textbf{Challenges Faced:}
-\begin{itemize}
-    \item Handling multi-value columns like 'Channel\_Used'.
-    \item Managing high multicollinearity between web traffic metrics.
-\end{itemize}
+\section{Results and Evaluation}
+Model performance was evaluated using Mean Absolute Error (MAE) and the $R^2$ Score.
 
-\textbf{Model Performance Comparison Summary:}
 \begin{table}[H]
 \centering
+\caption{Comparative Model Performance}
 \begin{tabular}{lccc}
 \toprule
 Metric & Linear Regression & Random Forest & Neural Network \\
@@ -151,7 +150,9 @@ MAE & 1.57 & \textbf{0.11} & 0.87 \\
 \end{tabular}
 \end{table}
 
-\textbf{Key Learnings:} \\
-Random Forest proved to be the most robust model for this dataset, providing near-perfect predictions for ROI. This suggests that marketing performance follows clear decision-tree patterns.
+\section{Reflection and Conclusion}
+The experimental results demonstrate that the Random Forest Regressor is exceptionally well-suited for this type of marketing data, achieving an $R^2$ score of 0.99. This suggests that marketing ROI follows predictable decision paths based on audience targeting and engagement metrics. 
+
+While the Neural Network performed well, the superior performance of the Random Forest model highlights the effectiveness of ensemble learning for structured tabular datasets. The insights gained from this project could be used to optimize budget allocation across digital channels to maximize efficiency.
 
 \end{document}
