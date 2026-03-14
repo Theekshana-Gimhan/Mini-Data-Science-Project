@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{float}
+
+\geometry{a4paper, margin=1in}
+
+\title{Case Study: Predicting and Optimizing Digital Marketing ROI for Nykaa Campaigns}
+\author{Theekshana Gimhan \\ MAD LABS}
+\date{March 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+As MAD LABS transitions from a digital marketing agency into a SaaS-focused IT company, data-driven decision-making is paramount. This case study analyzes marketing campaign performance data from Nykaa to identify key drivers of Return on Investment (ROI). The goal is to develop a predictive model that can assist SaaS products like Simpala HR and Fintrack in optimizing their user acquisition costs and campaign efficiency.
+
+\section{Data Preprocessing}
+The dataset contains 55,555 records of marketing campaigns. The following cleaning steps were performed:
+\begin{itemize}
+    \item \textbf{Date Conversion:} The date column was converted to datetime objects to extract 'Month' and 'Day of Week' as seasonal features.
+    \item \textbf{Feature Engineering:} The 'Channel\_Used' column was processed to count the number of channels utilized in each campaign.
+    \item \textbf{Categorical Encoding:} Variables such as Campaign Type, Target Audience, and Language were transformed using One-Hot Encoding, expanding the feature space to 27 columns.
+    \item \textbf{Scaling:} Standard scaling was applied to numerical features to ensure convergence in the Neural Network model.
+\end{itemize}
+
+\section{Analysis: EDA and PCA}
+\subsection{Correlation Analysis}
+A correlation heatmap was generated to identify relationships between numerical features like Impressions, Clicks, Leads, and Revenue. ROI showed a complex relationship with acquisition costs, suggesting non-linear dependencies.
+
+\subsection{Principal Component Analysis (PCA)}
+To reduce dimensionality while retaining 95\% of the variance, PCA was applied to 11 numerical features. The analysis successfully reduced the feature space to 8 principal components, streamlining the modeling process while maintaining data integrity.
+
+\section{Machine Learning Methodology}
+Three distinct regression models were implemented to predict ROI:
+\begin{enumerate}
+    \item \textbf{Linear Regression:} Used as a baseline to measure linear relationships.
+    \item \textbf{Random Forest Regressor:} An ensemble method used to capture non-linear patterns and feature interactions.
+    \item \textbf{Neural Network (ANN):} A deep learning model with three dense layers (128, 64, 32 nodes) and dropout regularization (0.2) to prevent overfitting.
+\end{enumerate}
+
+\section{Results and Discussion}
+The models were evaluated using Mean Absolute Error (MAE), Mean Squared Error (MSE), and the $R^2$ Score. The Random Forest model significantly outperformed the others.
+
+\begin{table}[H]
+\centering
+\caption{Model Performance Comparison}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{MAE} & \textbf{MSE} & \textbf{$R^2$ Score} \\
+\midrule
+Linear Regression & 1.5757 & 7.6421 & 0.6246 \\
+Random Forest & \textbf{0.1150} & \textbf{0.1322} & \textbf{0.9935} \\
+Neural Network & 0.8745 & 2.4430 & 0.8800 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion and Reflection}
+The Random Forest model achieved an exceptional $R^2$ score of 0.9935, indicating that the ensemble trees successfully captured the intricate dynamics of Nykaa's marketing campaigns. This accuracy provides MAD LABS with a reliable tool for forecasting the success of future campaigns. 
+
+This study demonstrates that for structured tabular marketing data, ensemble methods like Random Forest can provide superior predictive power compared to deep learning models. These insights will be integrated into the analytics modules of Simpala HR to help clients manage recruitment campaign ROI more effectively.
+
+\end{document}
